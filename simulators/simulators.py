@@ -12,8 +12,7 @@ def CreateAdjacencyAR1(N,rho):
 
 
 def GenerateSynthetic_order_p(K,A,H,p,x0,sigma_P, sigma_Q, sigma_R):
-    Ny = len(H)
-    Nx = len(H)
+    Ny, Nx = H.shape
 
     x = np.zeros((Nx,K))
     y = np.zeros((Ny,K))
@@ -30,4 +29,4 @@ def GenerateSynthetic_order_p(K,A,H,p,x0,sigma_P, sigma_Q, sigma_R):
         x[:, k] = deterministic_state + sigma_Q * np.random.randn(Nx)
         y[:, k] = H @ x[:, k] + sigma_R * np.random.randn(Ny)
 
-    return [y,x]
+    return y, x
