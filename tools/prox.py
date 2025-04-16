@@ -58,9 +58,9 @@ def sylv(A, B, C):
         ZB = ZA
         TB = TA.conj().T
         solve_direction = 'backward'
-    elif np.array_equal(A, B.conj().T):
-        ZB = conj(ZA)  # Corrected: Use np.conj
-        TB = TA.T       # Corrected: Use .T (transpose, not conjugate transpose here as per MATLAB logic)
+    elif np.allclose(A, B.conj().T):
+        ZB = np.conjugate(ZA)
+        TB = TA.T
         solve_direction = 'backward'
     else:
         ZB, TB = schur(B, output='complex')
@@ -110,7 +110,7 @@ def lyap(A, B, C=None, E=None):
         X = control.slyap(A_ctrl, B_ctrl, -C_ctrl) # Note the -C for the form used by slyap
         if np.isrealobj(A) and np.isrealobj(B) and np.isrealobj(C):
             X = np.real(X)
-            
+
     elif E_ctrl is not None and C_ctrl is None:
         # Generalized Lyapunov equation: A*X*E' + E*X*A' + B = 0
         try:
