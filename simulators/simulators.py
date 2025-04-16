@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def CreateAdjacencyAR1(N,rho):
     A = np.zeros((N,N))
 
@@ -9,7 +8,6 @@ def CreateAdjacencyAR1(N,rho):
             A[i, j] = rho ** abs((i-1)-(j-1))
 
     return A
-
 
 def GenerateSynthetic_order_p(K,A,H,p,x0,sigma_P, sigma_Q, sigma_R):
     Ny, Nx = H.shape
