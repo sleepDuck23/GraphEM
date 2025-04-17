@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.linalg import schur, solve
-import control
-import slycot
+import control 
+
 
 from tools.matrix import Extend_matA
 
@@ -52,77 +52,88 @@ def prox_21(W, lambda_reg):
     X = W * np.maximum(1 - lambda_reg / Norm_rows_large, 0)
     return X
 
-def sylv(A, B, C):
-    m, n = C.shape
+def lyap(A, B, C=None, E=None):
+    """
+    Solve continuous-time Lyapunov or Sylvester equations.
+    """
+    if C is None and E is None:
+        # A*X + X*A' + B = 0
+        X = sylv(A, None, B)
+        if np.isrealobj(A) and np.isrealobj(B):
+            X = np.real(X)
+    elif C is not None and E is None:
+        # A*X + X*B + C = 0
+        X = sylv(A, B, C)
+        if np.isrealobj(A) and np.isrealobj(B) and np.isrealobj(C):
+            X = np.real(X)
+    else:
+        # A*X*E' + E*X*A' + B = 0
+        X = bartels_stewart(A, E, None, None, -B)
+        if np.isrealobj(A) and np.isrealobj(B) and np.isrealobj(E):
+            X = np.real(X)
+    return X
 
+def sylv(A, B, C):
+    """
+    Solve the Sylvester matrix equation:
+    A*X + X*B + C = 0
+    or Lyapunov matrix equation when B is None.
+    """
+    m, n = C.shape
     ZA, TA = schur(A, output='complex')
-    if B is None:
+
+    if B is None or np.allclose(B, A.T):
         ZB = ZA
-        TB = TA.conj().T
+        TB = TA.T
         solve_direction = 'backward'
-    elif np.allclose(A, B.conj().T):
-        ZB = np.conjugate(ZA)
+    elif np.allclose(B, A.T.conj()):
+        ZB = ZA.conj()
         TB = TA.T
         solve_direction = 'backward'
     else:
         ZB, TB = schur(B, output='complex')
         solve_direction = 'forward'
 
-    F = ZA.conj().T @ C @ ZB
+    F = ZA.T @ C @ ZB
 
-    if np.allclose(TA, np.diag(np.diag(TA))) and np.allclose(TB, np.diag(np.diag(TB))):
-        L = -1 / (np.diag(TA)[:, None] + np.diag(TB)[None, :])
-        Y = L * F
-        X = ZA @ Y @ ZB.conj().T
-        return X
+    if np.allclose(TA, np.diag(np.diagonal(TA))) and np.allclose(TB, np.diag(np.diagonal(TB))):
+        L = -1.0 / (np.diagonal(TA)[:, None] + np.diagonal(TB))
+        return ZA @ (L * F) @ ZB.T
 
-    Y = np.zeros((m, n), dtype=np.complex_)
-    p = np.diag(TA)
-    idx = np.arange(m)
+    Y = np.zeros_like(F, dtype=complex)
+    idx = np.diag_indices(m)
+    p = np.diagonal(TA)
 
-    if solve_direction == 'backward':
-        kk = range(n - 1, -1, -1)
-    else:
-        kk = range(n)
+    kk = range(n - 1, -1, -1) if solve_direction == 'backward' else range(n)
 
     for k in kk:
-        rhs = F[:, k] - Y @ TB[:, k]
-        TA_shifted = TA.copy()
-        np.fill_diagonal(TA_shifted, p + TB[k, k])
-        Y[:, k] = solve(TA_shifted, -rhs)
+        rhs = F[:, k] + Y @ TB[:, k]
+        TA[idx] = p + TB[k, k]
+        Y[:, k] = solve(TA, -rhs)
 
-    X = ZA @ Y @ ZB.conj().T
-    return X
+    return ZA @ Y @ ZB.T
 
+def bartels_stewart(A, B, C, D, E):
+    """
+    Solve generalised Sylvester equation:
+    A*X*B^T + C*X*D^T = E
+    If C and D are None, solves:
+    A*X*B^T + B*X*A^T = -E
+    """
+    if C is None and D is None:
+        C = B
+        D = A
 
-def lyap(A, B, C=None, E=None):
-    A_ctrl = np.array(A, dtype=complex)  # Convert to complex for control library
-    B_ctrl = np.array(B, dtype=complex) if B is not None else None
-    C_ctrl = np.array(C, dtype=complex) if C is not None else None
-    E_ctrl = np.array(E, dtype=complex) if E is not None else None
+    UA, TA = schur(A, output='complex')
+    UB, TB = schur(B, output='complex')
 
-    if C_ctrl is None and E_ctrl is None:
-        # Lyapunov equation: A*X + X*A' + B = 0
-        X = control.lyap(A_ctrl, B_ctrl)
-        if np.isrealobj(A) and np.isrealobj(B):
-            X = np.real(X)
+    F = UA.T @ E @ UB
+    m, n = F.shape
+    X = np.zeros((m, n), dtype=complex)
 
-    elif C_ctrl is not None and E_ctrl is None:
-        # Sylvester equation: A*X + X*B + C = 0
-        X = control.slyap(A_ctrl, B_ctrl, -C_ctrl) # Note the -C for the form used by slyap
-        if np.isrealobj(A) and np.isrealobj(B) and np.isrealobj(C):
-            X = np.real(X)
+    for i in range(m):
+        for j in range(n):
+            denom = TA[i, i] * TB[j, j] + C[i, i] * D[j, j]
+            X[i, j] = F[i, j] / denom
 
-    elif E_ctrl is not None and C_ctrl is None:
-        # Generalized Lyapunov equation: A*X*E' + E*X*A' + B = 0
-        try:
-            X = control.lyap(A_ctrl, B_ctrl, E=E_ctrl)
-            if np.isrealobj(A) and np.isrealobj(B) and np.isrealobj(E):
-                X = np.real(X)
-        except Exception as e:
-            print(f"Error solving generalized Lyapunov equation: {e}")
-            X = None
-    else:
-        raise ValueError("Incorrect combination of input arguments.")
-
-    return X
+    return UA @ X @ UB.T
