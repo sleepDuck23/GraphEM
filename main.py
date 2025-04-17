@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
         # Synthetic data generation
         x = GenerateSynthetic_order_p(K, D1, D2, p, z0, sigma_P, sigma_Q, sigma_R)
-        saveX[:, :, real] = x
+        saveX[:, :, real] = x[real]
 
         # Inference (GRAPHEM algorithm)
         print('-- GRAPHEM --')
@@ -70,6 +70,9 @@ if __name__ == "__main__":
         Nit_em = 50  # number of iterations maximum for EM loop
         prec = 1e-3  # precision for EM loop
 
+        # Debug from here
+        #
+        #
         tStart = plt.tic()
         # initialization of GRAPHEM
         D1_em = prox_stable(CreateAdjacencyAR1(Nz, 0.1), 0.99)
