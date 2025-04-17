@@ -1,5 +1,8 @@
 import numpy as np
 
+from tools.loss import ComputeMaj_D1, Compute_Prior_D1
+from tools.prox import prox_L1, prox_ML_D1, prox_stable
+
 def Smoothing_update(zk_kal,Pk_kal,zk_smooth_past,Pk_smooth_past,A,H,R,Q):
     zk_minus = A @ zk_kal
     Pk_minus = A @ Pk_kal @ A.T + Q

@@ -3,6 +3,8 @@ from scipy.linalg import schur, solve
 import control
 import slycot
 
+from tools.matrix import Extend_matA
+
 def Scaling_to_stabilize(A, bnd):
     p = A.shape[2]
     A_ex = Extend_matA(A)  # Extended matrix A

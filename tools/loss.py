@@ -1,6 +1,8 @@
 import numpy as np
 from numpy.linalg import norm, svd
 
+from tools.matrix import reshape_my_A
+
 def norm_21(W):
     nve = np.sqrt(np.sum(W**2, axis=1))
     F = np.sum(nve)
