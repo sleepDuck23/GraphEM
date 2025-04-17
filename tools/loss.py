@@ -56,7 +56,7 @@ def Compute_Prior_D1(D1, reg):
         100: lambda d, g: g * np.sum(np.abs(d)),
         113: lambda d, g: g * np.sum(np.abs(d)),
         2: lambda d, g: (g / 2) * norm(d, 'fro')**2,
-        11: lambda d, g: g * np.sum(np.abs(d)) + fun_barriers(svd(d), 1e-3, 0, 1),
+        #11: lambda d, g: g * np.sum(np.abs(d)) + fun_barriers(svd(d), 1e-3, 0, 1),             #fun_barriers is Not defined even on matlab code (investigate this function)
         3: lambda d, g: 0,
         4: lambda d, g: 0,
         21: lambda d, g: g * norm_21(reshape_my_A(d)),
