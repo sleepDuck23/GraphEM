@@ -16,14 +16,13 @@ if __name__ == "__main__":
 
     # Load ground truth matrix D1
     try:
-        data = scipy.io.loadmat('datasets/D1_datasetA_icassp.mat')
+        data = scipy.io.loadmat('dataset/D1_datasetA_icassp.mat')
         D1 = data['D1']
     except FileNotFoundError:
         print("Error: datasets/D1_datasetA_icassp.mat not found. Using a dummy D1.")
-        Nx = 10  # Dummy size
+        Nx = 15  # Dummy size
         D1 = prox_stable(np.random.rand(Nx, Nx) - 0.5, 1)
     Nx = D1.shape[0]  # number of nodes
-
     Nz = Nx
     D2 = np.eye(Nz)  # for simplicity and identifiability purposes
 
