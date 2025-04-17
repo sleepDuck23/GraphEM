@@ -4,6 +4,12 @@ import scipy.sparse.linalg
 import matplotlib.pyplot as plt
 import os
 
+from tools.matrix import calError
+from tools.loss import ComputeMaj_D1, ComputeMaj, Compute_PhiK, Compute_Prior_D1
+from tools.EM import Smoothing_update, Kalman_update, EM_parameters, GRAPHEM_update
+from tools.prox import prox_stable
+from simulators.simulators import GenerateSynthetic_order_p, CreateAdjacencyAR1
+
 if __name__ == "__main__":
     K = 1000  # length of time series
     flag_plot = 0

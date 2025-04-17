@@ -70,11 +70,6 @@ def EM_parameters(x, z_mean_smooth, P_smooth, G_smooth, z_mean_smooth0, P_smooth
 
     return Sigma, Phi, B, C, D
 
-import numpy as np
-
-
-# Still needing to convert some function to work along
-
 def update_case_0(Sigma, Phi, C, K, sigma_Q, reg, D10, Maj_D1):
     return C @ np.linalg.inv(0.5 * (Phi + Phi.T))
 
