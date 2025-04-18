@@ -3,6 +3,7 @@ import scipy.io
 import scipy.sparse.linalg
 import matplotlib.pyplot as plt
 import os
+import time
 
 from tools.matrix import calError
 from tools.loss import ComputeMaj_D1, ComputeMaj, Compute_PhiK, Compute_Prior_D1
@@ -59,7 +60,7 @@ if __name__ == "__main__":
         print(f"---- REALIZATION {real + 1} ----")
 
         # Synthetic data generation
-        x = GenerateSynthetic_order_p(K, D1, D2, p, z0, sigma_P, sigma_Q, sigma_R)
+        y, x = GenerateSynthetic_order_p(K, D1, D2, p, z0, sigma_P, sigma_Q, sigma_R)
         saveX[:, :, real] = x[real]
 
         # Inference (GRAPHEM algorithm)
@@ -70,10 +71,7 @@ if __name__ == "__main__":
         Nit_em = 50  # number of iterations maximum for EM loop
         prec = 1e-3  # precision for EM loop
 
-        # Debug from here
-        #
-        #
-        tStart = plt.tic()
+        tStart = time.time()
         # initialization of GRAPHEM
         D1_em = prox_stable(CreateAdjacencyAR1(Nz, 0.1), 0.99)
         D1_em_save = np.zeros((Nz, Nz, Nit_em))
@@ -83,17 +81,27 @@ if __name__ == "__main__":
         Maj_before = np.zeros(Nit_em)
         Maj_after = np.zeros(Nit_em)
 
+        #x = np.stack(x, axis=1)  
+
         for i in range(Nit_em):  # EM iterations
             # 1/ Kalman filter filter
             z_mean_kalman_em = np.zeros((Nz, K))
             P_kalman_em = np.zeros((Nz, Nz, K))
             yk_kalman_em = np.zeros((Nx, K))
             Sk_kalman_em = np.zeros((Nx, Nx, K))
-            z_mean_kalman_em[:, 0], P_kalman_em[:, :, 0], yk_kalman_em[:, 0], Sk_kalman_em[:, :, 0] = \
-                Kalman_update(x[:, 0], z0, P0, D1_em, D2, R, Q)
+
+            x_k_initial = x[:, 0].reshape(-1, 1)  # Reshape to a column vector
+            z_mean_kalman_em_temp, P_kalman_em[:, :, 0], yk_kalman_em_temp, Sk_kalman_em[:, :, 0] = \
+                Kalman_update(x_k_initial, z0, P0, D1_em, D2, R, Q)
+            z_mean_kalman_em[:, 0] = z_mean_kalman_em_temp.flatten()
+            yk_kalman_em[:, 0] = yk_kalman_em_temp.flatten()
+
             for k in range(1, K):
-                z_mean_kalman_em[:, k], P_kalman_em[:, :, k], yk_kalman_em[:, k], Sk_kalman_em[:, :, k] = \
-                    Kalman_update(x[:, k], z_mean_kalman_em[:, k - 1], P_kalman_em[:, :, k - 1], D1_em, D2, R, Q)
+                x_k = x[:, k].reshape(-1, 1)      # Reshape each observation
+                z_mean_kalman_em_temp, P_kalman_em[:, :, k], yk_kalman_em_temp, Sk_kalman_em[:, :, k] = \
+                    Kalman_update(x_k, z_mean_kalman_em[:, k - 1].reshape(-1, 1), P_kalman_em[:, :, k - 1], D1_em, D2, R, Q)
+                z_mean_kalman_em[:, k] = z_mean_kalman_em_temp.flatten()
+                yk_kalman_em[:, k] = yk_kalman_em_temp.flatten()
 
             # compute loss function (ML for now, no prior)
             PhiK[i] = Compute_PhiK(0, Sk_kalman_em, yk_kalman_em)
