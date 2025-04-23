@@ -31,7 +31,7 @@ def prox_stable(D, eta):
 
 def prox_ML_D1(C, Phi, sigma_Q, gamma, D1, K):
     temp = (gamma * K) / (sigma_Q**2)
-    D1prox = (temp @ C + D1) @ np.linalg.pinv(Phi @ temp + np.eye(Phi.shape[0]))
+    D1prox = (temp * C + D1) @ np.linalg.pinv(temp * Phi + np.eye(Phi.shape[0]))
     return D1prox
 
 def prox_L1plus(gamma, gammareg, D):

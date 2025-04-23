@@ -4,6 +4,7 @@ import scipy.sparse.linalg
 import matplotlib.pyplot as plt
 import os
 import time
+import networkx as nx
 
 from tools.matrix import calError
 from tools.loss import ComputeMaj_D1, ComputeMaj, Compute_PhiK, Compute_Prior_D1
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         Nit_em = 50  # number of iterations maximum for EM loop
         prec = 1e-3  # precision for EM loop
 
-        tStart = time.time()
+        tStart = time.perf_counter() 
         # initialization of GRAPHEM
         D1_em = prox_stable(CreateAdjacencyAR1(Nz, 0.1), 0.99)
         D1_em_save = np.zeros((Nz, Nz, Nit_em))
@@ -121,9 +122,10 @@ if __name__ == "__main__":
             for k in range(K - 2, -1, -1):
                 z_mean_smooth_em[:, k], P_smooth_em[:, :, k], G_smooth_em[:, :, k] = \
                     Smoothing_update(z_mean_kalman_em[:, k], P_kalman_em[:, :, k],
-                                     z_mean_smooth_em[:, k + 1], P_smooth_em[:, :, k + 1], D1_em, D2, R, Q)
+                                     z_mean_smooth_em[:, k + 1], P_smooth_em[:, :, k + 1], D1_em, D2, R, Q)     
             z_mean_smooth0_em, P_smooth0_em, G_smooth0_em = \
-                Smoothing_update(z0, P0, z_mean_smooth_em[:, 0], P_smooth_em[:, :, 0], D1_em, D2, R, Q)
+                Smoothing_update(z0, P0, z_mean_smooth_em[:, 0].reshape(-1, 1), P_smooth_em[:, :, 0], D1_em, D2, R, Q)
+
 
             # compute EM parameters
             Sigma, Phi, B, C, D = EM_parameters(x, z_mean_smooth_em, P_smooth_em, G_smooth_em,
@@ -154,7 +156,7 @@ if __name__ == "__main__":
                     print(f"EM converged after iteration {i + 1}")
                     break
 
-        tEnd[real] = plt.toc(tStart)
+        tEnd[real] = time.perf_counter() - tStart
         D1_em_save_realization = D1_em_save[:, :, :len(Err_D1)]
         D1_em_final = D1_em
 
@@ -163,17 +165,28 @@ if __name__ == "__main__":
         D1_em_binary = np.abs(D1_em_final) >= threshold
         TP, FP, TN, FN = calError(D1_binary, D1_em_binary)
 
-        plt.figure(30)
+        plt.figure(30, figsize=(10, 5))
         plt.subplot(1, 2, 1)
-        G = plt.imshow(D1, cmap='hot', interpolation='nearest')
-        plt.colorbar(G)
-        plt.title('True D1')
-        plt.axis('off')
+        G_true = nx.DiGraph(D1)
+        weights_true = np.array([abs(G_true[u][v]['weight']) for u, v in G_true.edges()])
+        if weights_true.size > 0:
+            linewidths_true = 5 * weights_true / np.max(weights_true)
+        else:
+            linewidths_true = 1
+        pos = nx.spring_layout(G_true, seed=42)  # You might need to adjust the layout algorithm
+        nx.draw(G_true, pos, width=linewidths_true, with_labels=False, node_size=30, arrowsize=10)
+        plt.title('True D1 Network')
+
         plt.subplot(1, 2, 2)
-        G_em = plt.imshow(D1_em_final, cmap='hot', interpolation='nearest')
-        plt.colorbar(G_em)
-        plt.title('Estimated D1')
-        plt.axis('off')
+        G_est = nx.DiGraph(D1_em_final)
+        weights_est = np.array([abs(G_est[u][v]['weight']) for u, v in G_est.edges()])
+        if weights_est.size > 0:
+            linewidths_est = 5 * weights_est / np.max(weights_est)
+        else:
+            linewidths_est = 1
+        nx.draw(G_est, pos, width=linewidths_est, with_labels=False, node_size=30, arrowsize=10)
+        plt.title('Estimated D1 Network')
+        plt.tight_layout()
         plt.show()
 
         precision[real] = TP / (TP + FP + 1e-8)

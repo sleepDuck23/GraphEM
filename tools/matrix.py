@@ -90,14 +90,11 @@ def Create_long_A(A):
 
 def calError(trueMat, predictedMat):
     if trueMat.shape != predictedMat.shape:
-      raise ValueError("Input matrices must have the same shape.")
-    
-    adder = trueMat + predictedMat
-    TP = np.sum(adder == 2)
-    TN = np.sum(adder == 0)
-    
-    subtr = trueMat - predictedMat
-    FP = np.sum(subtr == -1)
-    FN = np.sum(subtr == 1)
-    
+        raise ValueError("Input matrices must have the same shape.")
+
+    TP = np.sum(trueMat & predictedMat)        # Both True
+    TN = np.sum(~trueMat & ~predictedMat)       # Both False
+    FP = np.sum(~trueMat & predictedMat)        # True is False, Predicted is True
+    FN = np.sum(trueMat & ~predictedMat)        # True is True, Predicted is False
+
     return TP, FP, TN, FN

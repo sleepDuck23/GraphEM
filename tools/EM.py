@@ -47,6 +47,7 @@ def Kalman_update(y_k,xk_mean_past,Pk_past,A,H,R,Q):
     return xk_mean_new, Pk_new, vk, Sk
 
 def EM_parameters(x, z_mean_smooth, P_smooth, G_smooth, z_mean_smooth0, P_smooth0, G_smooth0):
+
     K = x.shape[1]
     Nx = x.shape[0]
     Nz = z_mean_smooth.shape[0]
