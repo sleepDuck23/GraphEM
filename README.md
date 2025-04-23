@@ -20,11 +20,11 @@ This toolbox consists of 6 subfolders:
 ------------------------------------------------------------------------------------
 SPECIFICATIONS for using GraphEM:
 A demo file is provided :
-* main_graphem_synthetic_datasetA.m runs the example of Sec. IV-A of [Elvira & Chouzenoux, 2022]. 
+* main.py 
 
 
 ------------------------------------------------------------------------------------
 RELATED PUBLICATIONS:
- V. Elvira and E. Chouzenoux. Graphical Inference in Linear-Gaussian State-Space Models. IEEE Transactions on Signal Processing, vol. 70, pp. 4757 - 4771, Sep. 2022
- E. Chouzenoux and V. Elvira.  GraphEM: EM Algorithm for Blind Kalman Filtering under Graphical Sparsity Constraints. In Proceedings of the 45th IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP 2020), Virtual Conference, May 4-8 2020.
+ * V. Elvira and E. Chouzenoux. Graphical Inference in Linear-Gaussian State-Space Models. IEEE Transactions on Signal Processing, vol. 70, pp. 4757 - 4771, Sep. 2022
+ * E. Chouzenoux and V. Elvira.  GraphEM: EM Algorithm for Blind Kalman Filtering under Graphical Sparsity Constraints. In Proceedings of the 45th IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP 2020), Virtual Conference, May 4-8 2020.
 ---------
