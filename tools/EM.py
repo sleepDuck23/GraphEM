@@ -74,6 +74,42 @@ def EM_parameters(x, z_mean_smooth, P_smooth, G_smooth, z_mean_smooth0, P_smooth
 
     return Sigma, Phi, B, C, D
 
+#def EM_parameters(x, z_mean_smooth, P_smooth, G_smooth, z_mean_smooth0, P_smooth0, G_smooth0):
+#    K = x.shape[1]
+#    Nx = x.shape[0]
+#    Nz = z_mean_smooth.shape[0]
+#
+#    Sigma = np.zeros((Nz, Nz))
+#    Phi   = np.zeros((Nz, Nz))
+#    B     = np.zeros((Nx, Nz))
+#    C     = np.zeros((Nz, Nz))
+#    D     = np.zeros((Nx, Nx))
+#
+#    for k in range(1, K):  # 1-based loop in MATLAB => starts at index 1
+#        zk   = z_mean_smooth[:, k].reshape(-1, 1)
+#        zk_1 = z_mean_smooth[:, k-1].reshape(-1, 1)
+#        xk   = x[:, k].reshape(-1, 1)
+#
+#        Sigma += (1/K) * (P_smooth[:, :, k] + zk @ zk.T)
+#        Phi   += (1/K) * (P_smooth[:, :, k-1] + zk_1 @ zk_1.T)
+#        B     += (1/K) * (xk @ zk.T)
+#        C     += (1/K) * (P_smooth[:, :, k] @ G_smooth[:, :, k-1].T + zk @ zk_1.T)
+#        D     += (1/K) * (xk @ xk.T)
+#
+#    # Handle k=0 (MATLAB's k=1)
+#    z0     = z_mean_smooth[:, 0].reshape(-1, 1)
+#    z0_0   = z_mean_smooth0.reshape(-1, 1)
+#    x0     = x[:, 0].reshape(-1, 1)
+#
+#    Sigma += (1/K) * (P_smooth[:, :, 0] + z0 @ z0.T)
+#    Phi   += (1/K) * (P_smooth0 + z0_0 @ z0_0.T)
+#    B     += (1/K) * (x0 @ z0.T)
+#    C     += (1/K) * (P_smooth[:, :, 0] @ G_smooth0.T + z0 @ z0_0.T)
+#    D     += (1/K) * (x0 @ x0.T)
+#
+#    return Sigma, Phi, B, C, D
+
+
 def update_case_0(Sigma, Phi, C, K, sigma_Q, reg, D10, Maj_D1):
     return C @ np.linalg.inv(0.5 * (Phi + Phi.T))
 

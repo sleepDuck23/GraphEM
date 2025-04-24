@@ -21,7 +21,8 @@ def ComputeMaj(z0, P0, Q, R, z_mean_smooth0, P_smooth0, D1, D2, Sigma, Phi, B, C
     term4 = D - B @ D2.T - D2 @ B.T + D2 @ Sigma @ D2.T
 
     Maj1 = 0.5 * np.log(det_P0) + (K / 2) * np.log(det_Q) + (K / 2) * np.log(det_R)
-    Maj2 = 0.5 * np.trace(np.linalg.inv(P0) @ (P_smooth0 + np.outer(z_mean_smooth0 - z0, z_mean_smooth0 - z0)))
+    Maj2 = 0.5 * np.trace(np.linalg.inv(P0) @ (P_smooth0 + np.outer(z_mean_smooth0 - z0, z_mean_smooth0 - z0))) 
+    #Maj2 = 0.5 * np.trace(np.linalg.inv(P0) @ (P_smooth0 + (z_mean_smooth0 - z0) @ (z_mean_smooth0 - z0).T)) 
     Maj3 = (K / 2) * np.trace(np.linalg.inv(Q) @ term3)
     Maj4 = (K / 2) * np.trace(np.linalg.inv(R) @ term4)
 
