@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
         Err_D1 = []
         Nit_em = 50  # number of iterations maximum for EM loop
-        prec = 1e-3  # precision for EM loop
+        prec = 1e-2  # precision for EM loop
 
         tStart = time.perf_counter() 
         # initialization of GRAPHEM
@@ -130,6 +130,7 @@ if __name__ == "__main__":
             # compute EM parameters
             Sigma, Phi, B, C, D = EM_parameters(x, z_mean_smooth_em, P_smooth_em, G_smooth_em,
                                                 z_mean_smooth0_em, P_smooth0_em, G_smooth0_em)
+            
 
             # compute majorant function for ML term before update
             Maj_before[i] = ComputeMaj(z0, P0, Q, R, z_mean_smooth0_em, P_smooth0_em, D1_em, D2, Sigma, Phi, B, C, D, K)

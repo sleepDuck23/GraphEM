@@ -24,14 +24,23 @@ def remove_bias(x_in, K, y, seuil):
     return x_out
 
 def prox_stable(D, eta):
-    U, s, V = np.linalg.svd(D)
-    S = np.diag(np.minimum(s, eta))
-    Dprox = U @ S @ V.T
+    #U, s, V = np.linalg.svd(D)
+    #S = np.diag(np.minimum(s, eta))
+    #Dprox = U @ S @ V.T
+    U, s, Vh = np.linalg.svd(D, full_matrices=False)
+    S_clipped = np.minimum(s, eta)
+    Dprox = U @ np.diag(S_clipped) @ Vh
     return Dprox
 
 def prox_ML_D1(C, Phi, sigma_Q, gamma, D1, K):
     temp = (gamma * K) / (sigma_Q**2)
-    D1prox = (temp * C + D1) @ np.linalg.pinv(temp * Phi + np.eye(Phi.shape[0]))
+    #D1prox = (temp * C + D1) @ np.linalg.pinv(temp * Phi + np.eye(Phi.shape[0]))
+    # Build A and B
+    A = temp * Phi + np.eye(Phi.shape[0])
+    B = temp * C   + D1
+    
+    # Solve A X^T = B^T  =>  X = (solve(A, B.T)).T
+    D1prox = np.linalg.solve(A, B.T).T
     return D1prox
 
 def prox_L1plus(gamma, gammareg, D):
