@@ -10,7 +10,7 @@ from tools.matrix import calError
 from tools.loss import ComputeMaj_D1, ComputeMaj, Compute_PhiK, Compute_Prior_D1
 from tools.EM import Smoothing_update, Kalman_update, EM_parameters, GRAPHEM_update
 from tools.prox import prox_stable
-from simulators.simulators import GenerateSynthetic_order_p, CreateAdjacencyAR1
+from simulators.simulators import GenerateSynthetic_order_p, CreateAdjacencyAR1, generate_random_DAG
 
 if __name__ == "__main__":
     K = 1000  # length of time series
@@ -24,6 +24,12 @@ if __name__ == "__main__":
         print("Error: datasets/D1_datasetA_icassp.mat not found. Using a dummy D1.")
         Nx = 15  # Dummy size
         D1 = prox_stable(np.random.rand(Nx, Nx) - 0.5, 1)
+    Nx = D1.shape[0]  # number of nodes
+    Nz = Nx
+    D2 = np.eye(Nz)  # for simplicity and identifiability purposes
+
+    #Lets try new things: let's generate a DAG and use it on yhe following
+    D1, Graph = generate_random_DAG(10, graph_type='ER', edge_prob=0.2, seed=42)
     Nx = D1.shape[0]  # number of nodes
     Nz = Nx
     D2 = np.eye(Nz)  # for simplicity and identifiability purposes

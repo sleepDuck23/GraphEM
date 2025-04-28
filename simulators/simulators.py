@@ -1,6 +1,5 @@
 import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt
 
 def CreateAdjacencyAR1(N,rho):
     A = np.zeros((N,N))
