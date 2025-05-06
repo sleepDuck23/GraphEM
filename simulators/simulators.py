@@ -32,7 +32,8 @@ def generate_random_DAG(N,
                          graph_type='ER', 
                          edge_prob=0.3, 
                          weight_range=(0.5, 2.0), 
-                         seed=None):
+                         seed=None,
+                         enforce_ar1=True):
     """
     Generate a random DAG with specified graph type.
 
@@ -101,5 +102,11 @@ def generate_random_DAG(N,
     A = np.zeros((N, N))
     for u, v, attr in G.edges(data=True):
         A[u, v] = attr['weight']
+
+    if enforce_ar1:
+        for j in range(N):
+            col_norm = np.linalg.norm(A[:, j], ord=2)
+            if col_norm >= 1.0:
+                A[:, j] = A[:, j] / (col_norm + 1e-6) * 0.99  # enforce strict < 1
 
     return A, G

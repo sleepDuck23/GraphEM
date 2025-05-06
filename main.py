@@ -13,7 +13,7 @@ from tools.prox import prox_stable
 from simulators.simulators import GenerateSynthetic_order_p, CreateAdjacencyAR1, generate_random_DAG
 
 if __name__ == "__main__":
-    K = 1000  # length of time series
+    K = 2000  # length of time series
     flag_plot = 1
 
     # Load ground truth matrix D1
@@ -28,11 +28,11 @@ if __name__ == "__main__":
     Nz = Nx
     D2 = np.eye(Nz)  # for simplicity and identifiability purposes
 
-    ##Lets try new things: let's generate a DAG and use it on yhe following
-    #D1, Graph = generate_random_DAG(10, graph_type='ER', edge_prob=0.2, seed=42)
-    #Nx = D1.shape[0]  # number of nodes
-    #Nz = Nx
-    #D2 = np.eye(Nz)  # for simplicity and identifiability purposes
+    #Lets try new things: let's generate a DAG and use it on yhe following
+    D1, Graph = generate_random_DAG(5, graph_type='ER', edge_prob=0.2, seed=42)
+    Nx = D1.shape[0]  # number of nodes
+    Nz = Nx
+    D2 = np.eye(Nz)  # for simplicity and identifiability purposes
 
     p = 1  # markov order
     sigma_Q = 1  # observation noise std
